@@ -7,7 +7,6 @@ Metadata:
         default: 'Parent Stacks'
       Parameters:
       - ParentKmsKeyStack
-      - ParentS3VirusScanStack
     - Label:
         default: 'S3 Parameters'
       Parameters:
@@ -76,12 +75,6 @@ Resources:
           Status: !If [HasNoncurrentVersionExpirationInDays, Enabled, Disabled]
         - ExpirationInDays: !If [HasExpirationInDays, !Ref ExpirationInDays, 1]
           Status: !If [HasExpirationInDays, Enabled, Disabled]
-      NotificationConfiguration: !If
-      - HasS3VirusScan
-      - QueueConfigurations:
-        - Event: 's3:ObjectCreated:*'
-          Queue: {'Fn::ImportValue': !Sub '${ParentS3VirusScanStack}-ScanQueueArn'}
-      - !Ref 'AWS::NoValue'
       VersioningConfiguration: !If [HasVersioning, {Status: Enabled}, !If [HadVersioning, {Status: Suspended}, !Ref 'AWS::NoValue']]
       BucketEncryption: !If [HasKmsKey, {ServerSideEncryptionConfiguration: [{ServerSideEncryptionByDefault: {KMSMasterKeyID: {'Fn::ImportValue': !Sub '${ParentKmsKeyStack}-KeyArn'}, SSEAlgorithm: 'aws:kms'}}]}, !Ref 'AWS::NoValue']
   BucketPolicyPrivate:
